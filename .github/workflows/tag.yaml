@@ -16,6 +16,6 @@ jobs:
       - name: Create a release
         run: |
           TAG=${GITHUB_REF#refs/tags/v}
-          curl -f -X POST https://api.github.com/repos/${{ gihub.repository }}/releases -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -H "Accept: application/vnd.github.v3+json" -d "{\"tag_name\":\"v${TAG}\",\"name\":\"${TAG}\",\"body\":\"*Release prepared by Create Release workflow.*\",\"draft\":true}" >release.json
+          curl -f -X POST https://api.github.com/repos/${{ github.repository }}/releases -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -H "Accept: application/vnd.github.v3+json" -d "{\"tag_name\":\"v${TAG}\",\"name\":\"${TAG}\",\"body\":\"*Release prepared by Create Release workflow.*\",\"draft\":true}" >release.json
           UPLOAD_URL=$(jq .upload_url release.json | sed -e 's/"//g' -e 's/{.*}//')
           curl -f -X POST ${UPLOAD_URL}?name=random-${TAG}.txt -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: text/plain" -H "Accept: application/vnd.github.v3+json" -d @random.txt
