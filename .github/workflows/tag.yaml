@@ -1,0 +1,21 @@
+name: Create Release
+on:
+  push:
+    tags:
+      - "v*"
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Create an \"Artifact\""
+        run: |
+          tr -dc A-Za-z0-9 </dev/urandom | head -c 72 >random.txt
+      - name: Create a release
+        run: |
+          TAG=${GITHUB_REF#refs/tags/v}
+          curl -f -X POST https://api.github.com/repos/${{ gihub.repository }}/releases -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -H "Accept: application/vnd.github.v3+json" -d "{\"tag_name\":\"v${TAG}\",\"name\":\"${TAG}\",\"body\":\"*Release prepared by Create Release workflow.*\",\"draft\":true}" >release.json
+          UPLOAD_URL=$(jq .upload_url release.json | sed -e 's/"//g' -e 's/{.*}//')
+          curl -f -X POST ${UPLOAD_URL}?name=random-${TAG}.txt -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: text/plain" -H "Accept: application/vnd.github.v3+json" -d @random.txt
