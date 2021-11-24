@@ -18,9 +18,9 @@ jobs:
           tr -dc A-Za-z0-9 </dev/urandom | head -c 72 >random.txt
 
           # Add artifact to release
-          UPLOAD_URL=$(echo ${{ github.event.release.upload_url }} | sed -e 's/{.*}//')
-          curl -vf --http1.1 -X POST ${UPLOAD_URL}?name=random-${TAG}.txt -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: text/plain" -H "Accept: application/vnd.github.v3+json" -d @random.txt
+          UPLOAD_URL=$(echo "${{ github.event.release.upload_url }}" | sed -e 's/{.*}//')
+          curl -vf -X POST ${UPLOAD_URL}?name=random-${TAG}.txt -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: text/plain" -H "Accept: application/vnd.github.v3+json" -d @random.txt
 
           # Make the release not a pre-release
-          curl -vf --http1.1 -X PATCH ${{ github.event.release.url }} -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -H "Accept: application/vnd.github.v3+json" -d "{\"prerelease\":false}"
+          curl -vf -X PATCH ${{ github.event.release.url }} -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -H "Accept: application/vnd.github.v3+json" -d "{\"prerelease\":false}"
 
