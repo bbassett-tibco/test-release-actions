@@ -1,7 +1,7 @@
 name: Better Create Release
 on:
   release:
-    types: [created]
+    types: [published]
 permissions:
   contents: write
 jobs:
