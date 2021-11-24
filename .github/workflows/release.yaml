@@ -9,7 +9,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Show Me The Money
+      - name: Add artifacts to release
+        if: ${{ github.event.release.prerelease }}
         run: |
-          echo ${{ toJson(github) }}
+          # Create an 'artifact'
+          TAG=${GITHUB_REF#refs/tags/v}
+          tr -dc A-Za-z0-9 </dev/urandom | head -c 72 >random.txt
+
+          # Add artifact to release
+          UPLOAD_URL=$(echo ${{ github.event.release.upload_url }} | sed -e 's/{.*}//')
+          curl -f -X POST ${UPLOAD_URL}?name=random-${TAG}.txt -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: text/plain" -H "Accept: application/vnd.github.v3+json" -d @random.txt
+
+          # Make the release not a pre-release
+          curl -f -X PATCH ${{ github.event.release.url }} -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -H "Accept: application/vnd.github.v3+json" -d "{\"prerelease\":false}"
 
